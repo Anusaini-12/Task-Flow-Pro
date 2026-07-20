@@ -3,7 +3,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
-  title: "TaskFlow — Manage your work beautifully",
+  title: "TaskFlow Pro — Manage your work beautifully",
   description: "A modern task manager with drag-and-drop Kanban boards",
 };
 

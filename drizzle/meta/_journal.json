@@ -15,6 +15,13 @@
       "when": 1784531813944,
       "tag": "0001_curly_gunslinger",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1784558294562,
+      "tag": "0002_fixed_shinobi_shaw",
+      "breakpoints": true
     }
   ]
 }

@@ -1,26 +1,121 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@layer base {
+  :root {
+    /* Dark, premium, near-black with purple undertone */
+    --background: oklch(13% 0.018 280);
+    --foreground: oklch(96% 0.006 280);
+
+    --card: oklch(18% 0.02 280);
+    --card-foreground: oklch(95% 0.006 280);
+
+    /* Glass surface — slightly lighter, used with transparency */
+    --glass: oklch(30% 0.02 280 / 0.35);
+    --glass-border: oklch(80% 0.02 280 / 0.08);
+
+    --primary: oklch(66% 0.25 300);       /* vivid violet */
+    --primary-foreground: oklch(98% 0.005 280);
+
+    --secondary: oklch(70% 0.21 25);      /* warm coral */
+    --secondary-foreground: oklch(98% 0.005 280);
+
+    --accent: oklch(78% 0.15 195);        /* electric cyan */
+    --accent-foreground: oklch(15% 0.02 280);
+
+    --gradient-start: oklch(66% 0.25 300);
+    --gradient-mid: oklch(68% 0.24 345);
+    --gradient-end: oklch(76% 0.19 60);
+
+    --success: oklch(72% 0.19 145);
+    --warning: oklch(82% 0.17 85);
+    --danger: oklch(65% 0.23 25);
+
+    --border: oklch(85% 0.01 280 / 0.1);
+    --muted: oklch(24% 0.015 280);
+    --muted-foreground: oklch(68% 0.015 280);
+
+    --radius: 1rem;
+  }
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-glass: var(--glass);
+  --color-glass-border: var(--glass-border);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --radius-DEFAULT: var(--radius);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer utilities {
+  .gradient-brand {
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Glassmorphism — used on sidebar, cards, modals */
+  .glass {
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+  }
+
+  /* Soft glow for buttons / active states */
+  .glow-primary {
+    box-shadow: 0 0 0 1px oklch(66% 0.25 300 / 0.3), 0 8px 24px -4px oklch(66% 0.25 300 / 0.45);
+  }
+
+  .glow-primary:hover {
+    box-shadow: 0 0 0 1px oklch(66% 0.25 300 / 0.5), 0 12px 32px -4px oklch(66% 0.25 300 / 0.6);
+  }
+
+  /* Subtle noise/grain texture for depth (optional, on background) */
+  .bg-grid {
+    background-image: radial-gradient(oklch(100% 0 0 / 0.03) 1px, transparent 1px);
+    background-size: 24px 24px;
   }
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+* {
+  border-color: var(--border);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--muted);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
 }

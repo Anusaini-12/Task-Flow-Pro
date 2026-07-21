@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 TaskFlow Pro
 
-## Getting Started
+TaskFlow Pro is a modern full-stack task management application built with **Next.js**, **TypeScript**, **PostgreSQL**, and **Drizzle ORM**. It helps users organize their work efficiently using a Kanban board, productivity analytics, notifications, and secure authentication.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ✨ Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 🔐 Authentication
+- Secure user authentication with Better Auth
+- Email & password login
+- Google Sign-In
+- Protected dashboard routes
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 📋 Task Management
+- Create, edit, and delete tasks
+- Drag & drop Kanban board
+- Task priorities (Low, Medium, High)
+- Due date & time support
+- Task status management (Todo, In Progress, Done)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 🔔 Smart Notifications
+- Task due today
+- Task due within 1 hour
+- Overdue task alerts
+- Notification badge in sidebar
 
-## Learn More
+### 📊 Productivity Analytics
+- Daily streak tracking
+- Tasks completed today
+- Weekly completion activity chart
+- Completion rate
+- Overall productivity insights
 
-To learn more about Next.js, take a look at the following resources:
+### 🎨 Modern UI
+- Responsive design
+- Mobile-friendly sidebar
+- Clean dashboard layout
+- Beautiful animations
+- Dark theme UI
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🛠️ Tech Stack
 
-## Deploy on Vercel
+### Frontend
+- Next.js 15 (App Router)
+- React
+- TypeScript
+- Tailwind CSS
+- Lucide React Icons
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Backend
+- Next.js Server Actions
+- Better Auth
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Database
+- PostgreSQL
+- Drizzle ORM
+
+### Deployment
+- Vercel
+- Neon PostgreSQL

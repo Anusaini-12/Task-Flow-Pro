@@ -2,15 +2,19 @@
 
 import { useState } from "react";
 import { signOut, useSession } from "@/app/lib/auth-client";
-import { LayoutDashboard, ListTodo, Settings, LogOut, Menu, X, BookHeart, Flower } from "lucide-react";
+import { LayoutDashboard, ListTodo, Settings, LogOut, Menu, X, BookHeart, Flower, Bell } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { Task } from "@/app/types";
+import { generateNotifications } from "@/app/lib/notifications";
 
 export default function Sidebar({ tasks }: { tasks: Task[] }) {
     const router = useRouter();
     const pathname = usePathname();
     const { data: session } = useSession();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    const notifications = generateNotifications(tasks);
+    const notificationCount = notifications.length;
 
     async function handleLogout() {
         await signOut();
@@ -28,6 +32,7 @@ export default function Sidebar({ tasks }: { tasks: Task[] }) {
         { icon: <LayoutDashboard size={18} />, label: "Dashboard", href: "/dashboard" },
         { icon: <ListTodo size={18} />, label: "My Tasks", href: "/my-tasks" },
         { icon: <Settings size={18} />, label: "Settings", href: "/settings" },
+        { icon: <Bell size={18} />, label: "Notifications", href: "/notifications", count: notificationCount },
     ];
 
     return (
@@ -36,7 +41,7 @@ export default function Sidebar({ tasks }: { tasks: Task[] }) {
             <header className="glass sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-border px-4 md:hidden">
                 <div className="flex items-center gap-2">
                     {/* <div className="gradient-brand h-7 w-7 rounded-lg shadow-md shadow-primary/20" /> */}
-                     <Flower className="h-6 w-6 text-purple-400" style={{ animation: "spin 4s linear infinite" }} />  
+                    <Flower className="h-6 w-6 text-purple-400" style={{ animation: "spin 4s linear infinite" }} />
                     <span className="text-lg font-bold gradient-text">TaskFlow Pro</span>
                 </div>
 
@@ -72,7 +77,7 @@ export default function Sidebar({ tasks }: { tasks: Task[] }) {
                     <div className="mb-8 flex items-center justify-between px-2">
                         <div className="flex items-center gap-2">
                             {/* <div className="gradient-brand h-7 w-7 rounded-lg shadow-md shadow-primary/20" /> */}
-                             <Flower className="h-7 w-7 text-purple-400" style={{ animation: "spin 4s linear infinite" }} />  
+                            <Flower className="h-7 w-7 text-purple-400" style={{ animation: "spin 4s linear infinite" }} />
                             <span className="text-lg font-bold gradient-text">TaskFlow Pro</span>
                         </div>
 
@@ -96,12 +101,20 @@ export default function Sidebar({ tasks }: { tasks: Task[] }) {
                                         setIsMobileMenuOpen(false);
                                     }}
                                     className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all ${isActive
-                                            ? "bg-primary/15 text-primary font-semibold shadow-sm border border-primary/20"
-                                            : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                                        ? "bg-primary/15 text-primary font-semibold shadow-sm border border-primary/20"
+                                        : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"
                                         }`}
                                 >
-                                    {item.icon}
-                                    {item.label}
+                                    <div className="flex items-center gap-3 flex-1">
+                                        {item.icon}
+                                        <span>{item.label}</span>
+                                    </div>
+
+                                    {item.count !== undefined && item.count > 0 && (
+                                        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-700 px-1.5 text-xs font-semibold text-gray-100">
+                                            {item.count}
+                                        </span>
+                                    )}
                                 </button>
                             );
                         })}

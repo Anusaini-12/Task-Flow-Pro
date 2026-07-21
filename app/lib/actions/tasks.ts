@@ -36,7 +36,7 @@ export async function createTask(data: {
   description?: string;
   priority?: "low" | "medium" | "high";
   status?: "todo" | "in_progress" | "done";
-  dueDate?: Date | null;
+  dueAt?: Date | null;
 }) {
   const userId = await getUserId();
   await db.insert(tasks).values({
@@ -45,7 +45,7 @@ export async function createTask(data: {
     description: data.description,
     priority: data.priority || "medium",
     status: data.status || "todo",
-    dueDate: data.dueDate ?? null,
+    dueAt: data.dueAt ?? null,
   });
   revalidatePath("/dashboard");
   revalidatePath("/my-tasks");

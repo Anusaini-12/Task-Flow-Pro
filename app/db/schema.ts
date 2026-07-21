@@ -68,7 +68,7 @@ export const tasks = pgTable("tasks", {
   status: taskStatusEnum("status").notNull().default("todo"),
   priority: taskPriorityEnum("priority").notNull().default("medium"),
   position: text("position").notNull().default("0"), // for ordering within column
-  dueDate: timestamp("due_date"),
+  dueAt: timestamp("due_at"),
   completedAt: timestamp("completed_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),

@@ -9,7 +9,7 @@ export default function LoginPage() {
       <div className="bg-grid pointer-events-none absolute inset-0 opacity-40" />
 
       {/* Added: w-full and max-w-md */}
-      <div className="relative z-10 w-full max-w-md">
+      <div className="relative z-10 w-full max-w-md md:max-w-4xl">
         <AuthForm mode="login" />
       </div>
     </div>

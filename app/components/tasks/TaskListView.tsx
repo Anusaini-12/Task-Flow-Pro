@@ -22,19 +22,43 @@ const statusLabel: Record<TaskStatus, string> = {
   done: "Done",
 };
 
-function getDueMeta(dueDate: Date | string | null) {
-  if (!dueDate) return null;
-  const date = new Date(dueDate);
+// 1. Updated to read dueAt timestamp, format time, and check exact overdue minutes
+function getDueMeta(dueAt: Date | string | null, isDone: boolean) {
+  if (!dueAt) return null;
+  const date = new Date(dueAt);
+  const now = new Date();
+
+  // Extract clean time string (e.g., "5:00 PM")
+  const timeLabel = date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  date.setHours(0, 0, 0, 0);
-  const diffDays = Math.round((date.getTime() - today.getTime()) / 86400000);
-  const label = date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  const targetDate = new Date(date);
+  targetDate.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((targetDate.getTime() - today.getTime()) / 86400000);
 
-  if (diffDays < 0) return { label: `${label} (overdue)`, className: "text-danger" };
-  if (diffDays === 0) return { label: "Today", className: "text-warning" };
-  if (diffDays === 1) return { label: "Tomorrow", className: "text-accent" };
-  return { label, className: "text-muted-foreground" };
+  const dateLabel = date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+
+  // Exact timestamp check: overdue if current time is past dueAt (and not done)
+  const isOverdue = !isDone && date.getTime() < now.getTime();
+
+  if (isOverdue) {
+    return {
+      label: `${diffDays < 0 ? dateLabel : "Today"}, ${timeLabel} (overdue)`,
+      className: "text-danger font-semibold bg-danger/10 px-2 py-0.5 rounded-md",
+    };
+  }
+
+  if (diffDays === 0) {
+    return { label: `Today, ${timeLabel}`, className: "text-warning font-medium" };
+  }
+  if (diffDays === 1) {
+    return { label: `Tomorrow, ${timeLabel}`, className: "text-accent font-medium" };
+  }
+  return { label: `${dateLabel}, ${timeLabel}`, className: "text-muted-foreground" };
 }
 
 export default function TaskListView({ initialTasks }: { initialTasks: Task[] }) {
@@ -54,12 +78,15 @@ export default function TaskListView({ initialTasks }: { initialTasks: Task[] })
 
     result.sort((a, b) => {
       if (sortKey === "priority") return priorityWeight[a.priority] - priorityWeight[b.priority];
+      
+      // 2. Updated sorting to evaluate dueAt timestamps instead of dueDate
       if (sortKey === "dueDate") {
-        if (!a.dueDate && !b.dueDate) return 0;
-        if (!a.dueDate) return 1;
-        if (!b.dueDate) return -1;
-        return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+        if (!a.dueAt && !b.dueAt) return 0;
+        if (!a.dueAt) return 1;
+        if (!b.dueAt) return -1;
+        return new Date(a.dueAt).getTime() - new Date(b.dueAt).getTime();
       }
+      
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
@@ -149,7 +176,7 @@ export default function TaskListView({ initialTasks }: { initialTasks: Task[] })
           Sort: {sortKey === "dueDate" ? "Due date" : sortKey === "priority" ? "Priority" : "Newest"}
         </button>
 
-        {/* PRIORITY LEGEND ADDITION */}
+        {/* PRIORITY LEGEND */}
         <div className="hidden items-center gap-3 rounded-lg border border-border bg-background/50 px-3 py-2 text-xs text-muted-foreground md:flex">
           <span className="font-medium">Priority:</span>
           <div className="flex items-center gap-1.5">
@@ -178,7 +205,8 @@ export default function TaskListView({ initialTasks }: { initialTasks: Task[] })
 
         {filtered.map((task) => {
           const isDone = task.status === "done";
-          const dueMeta = getDueMeta(task.dueDate);
+          // 3. Passed task.dueAt and isDone to getDueMeta
+          const dueMeta = getDueMeta(task.dueAt, isDone);
 
           return (
             <div
@@ -205,6 +233,7 @@ export default function TaskListView({ initialTasks }: { initialTasks: Task[] })
                 {statusLabel[task.status]}
               </span>
 
+              {/* Date & Time renders right here at the far right of the row */}
               {dueMeta && (
                 <span className={`flex shrink-0 items-center gap-1 text-xs font-medium ${dueMeta.className}`}>
                   <Calendar size={12} />

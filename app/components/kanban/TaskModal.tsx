@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Task, TaskPriority, TaskStatus } from "@/app/types";
 import { createTask, updateTask, deleteTask } from "@/app/lib/actions/tasks";
-import { X, Trash2, Calendar } from "lucide-react";
+import { X, Trash2, Calendar, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -20,9 +20,26 @@ export default function TaskModal({
   const [title, setTitle] = useState(task?.title || "");
   const [description, setDescription] = useState(task?.description || "");
   const [priority, setPriority] = useState<TaskPriority>(task?.priority || "medium");
-  const [dueDate, setDueDate] = useState(
-    task?.dueDate ? new Date(task.dueDate).toISOString().split("T")[0] : ""
-  );
+
+  // Initialize date (YYYY-MM-DD) and time (HH:mm) from existing timestamp
+  const [dueDate, setDueDate] = useState(() => {
+    if (!task?.dueAt) return "";
+
+    const d = new Date(task.dueAt);
+
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  });
+
+  const [dueTime, setDueTime] = useState(() => {
+    if (!task?.dueAt) return "";
+    const d = new Date(task.dueAt);
+    return d.toTimeString().slice(0, 5); // Extracts "HH:mm" in local time
+  });
+
   const [saving, setSaving] = useState(false);
 
   async function handleSave() {
@@ -32,17 +49,44 @@ export default function TaskModal({
     }
 
     setSaving(true);
-    const parsedDate = dueDate ? new Date(dueDate) : null;
+
+    // Combine date and time into a single timestamp
+    let parsedDueAt: Date | null = null;
+    if (dueDate) {
+      // If time isn't selected, default to end of day (23:59)
+      const timeString = dueTime || "23:59";
+      const [year, month, day] = dueDate.split("-").map(Number);
+      const [hour, minute] = timeString.split(":").map(Number);
+
+      parsedDueAt = new Date(
+        year,
+        month - 1,
+        day,
+        hour,
+        minute
+      );
+    }
 
     try {
       if (task) {
-        await updateTask(task.id, { title, description, priority, dueDate: parsedDate });
+        await updateTask(task.id, {
+          title,
+          description,
+          priority,
+          dueAt: parsedDueAt
+        });
       } else {
-        await createTask({ title, description, priority, status: defaultStatus, dueDate: parsedDate });
+        await createTask({
+          title,
+          description,
+          priority,
+          status: defaultStatus,
+          dueAt: parsedDueAt
+        });
       }
-      
+
       toast.success("Task saved successfully!");
-      router.refresh(); // Refreshes Next.js server cache & UI
+      router.refresh();
       onClose();
     } catch (error) {
       toast.error("Something went wrong while saving.");
@@ -56,7 +100,7 @@ export default function TaskModal({
     try {
       await deleteTask(task.id);
       toast.success("Task deleted successfully!");
-      router.refresh(); // Refreshes Next.js server cache & UI on delete too
+      router.refresh();
       onClose();
     } catch (error) {
       toast.error("Failed to delete task.");
@@ -98,8 +142,8 @@ export default function TaskModal({
                 key={p}
                 onClick={() => setPriority(p)}
                 className={`flex-1 rounded-lg border py-1.5 text-xs font-semibold capitalize transition-colors ${priority === p
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-border text-muted-foreground hover:border-muted-foreground"
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border text-muted-foreground hover:border-muted-foreground"
                   }`}
               >
                 {p}
@@ -107,20 +151,51 @@ export default function TaskModal({
             ))}
           </div>
 
-          <label className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm focus-within:border-primary">
-            <Calendar size={15} className="text-muted-foreground" />
-            <input
-              type="date"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-              className="flex-1 bg-transparent outline-none [color-scheme:dark]"
-            />
-            {dueDate && (
-              <button onClick={() => setDueDate("")} className="text-xs text-muted-foreground hover:text-danger">
-                clear
+          {/* Combined Date and Time Picker Controls */}
+          <div className="flex flex-col gap-2 sm:flex-row">
+            {/* Date Picker */}
+            <label className="flex flex-1 items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm focus-within:border-primary">
+              <Calendar size={15} className="text-muted-foreground" />
+              <input
+                type="date"
+                value={dueDate}
+                onChange={(e) => {
+                  setDueDate(e.target.value);
+                  // Automatically set a default time when date is picked initially
+                  if (!dueTime && e.target.value) setDueTime("12:00");
+                }}
+                className="w-full bg-transparent text-xs outline-none [color-scheme:dark] sm:text-sm"
+              />
+            </label>
+
+            {/* Time Picker (Only visible/enabled if a date is selected) */}
+            <label className={`flex flex-1 items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm focus-within:border-primary ${!dueDate && "opacity-50 pointer-events-none"}`}>
+              <Clock size={15} className="text-muted-foreground" />
+              <input
+                type="time"
+                disabled={!dueDate}
+                value={dueTime}
+                onChange={(e) => setDueTime(e.target.value)}
+                className="w-full bg-transparent text-xs outline-none [color-scheme:dark] sm:text-sm"
+              />
+            </label>
+          </div>
+
+          {/* Clear Button */}
+          {(dueDate || dueTime) && (
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => {
+                  setDueDate("");
+                  setDueTime("");
+                }}
+                className="text-xs text-muted-foreground transition-colors hover:text-danger"
+              >
+                Clear due date & time
               </button>
-            )}
-          </label>
+            </div>
+          )}
         </div>
 
         <div className="mt-6 flex items-center justify-between">

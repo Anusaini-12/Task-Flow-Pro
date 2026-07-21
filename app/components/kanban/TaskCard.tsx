@@ -3,35 +3,46 @@
 import { Task } from "@/app/types";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Calendar, GripVertical, CheckCircle2, Circle } from "lucide-react";
-import { updateTaskStatus } from "@/app/lib/actions/tasks";
+import { Calendar, Clock } from "lucide-react";
 
-const priorityStripe: Record<string, string> = {
-  low: "bg-success",
-  medium: "bg-warning",
-  high: "bg-danger",
-};
+// Updated to accept dueAt (full timestamp)
+function getDueMeta(dueAt: Date | string | null, isDone: boolean) {
+  if (!dueAt) return null;
+  const date = new Date(dueAt);
+  const now = new Date();
 
-const priorityDot: Record<string, string> = {
-  low: "text-success",
-  medium: "text-warning",
-  high: "text-danger",
-};
+  // 1. Format the time cleanly (e.g., "5:00 PM" or "11:59 PM")
+  const timeLabel = date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+  });
 
-function getDueMeta(dueDate: Date | string | null) {
-  if (!dueDate) return null;
-  const date = new Date(dueDate);
+  // 2. Date-only math to determine "Today" vs "Tomorrow" vs "Jul 25"
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  date.setHours(0, 0, 0, 0);
-  const diffDays = Math.round((date.getTime() - today.getTime()) / 86400000);
+  const targetDate = new Date(date);
+  targetDate.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((targetDate.getTime() - today.getTime()) / 86400000);
 
-  const label = date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  const dateLabel = date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 
-  if (diffDays < 0) return { label: `${label} (overdue)`, className: "text-danger" };
-  if (diffDays === 0) return { label: "Today", className: "text-warning" };
-  if (diffDays === 1) return { label: "Tomorrow", className: "text-accent" };
-  return { label, className: "text-muted-foreground" };
+  // 3. Exact timestamp check: It's overdue if the current time is past dueAt (and not done)
+  const isOverdue = !isDone && date.getTime() < now.getTime();
+
+  if (isOverdue) {
+    return {
+      label: `${diffDays < 0 ? dateLabel : "Today"}, ${timeLabel} (overdue)`,
+      className: "text-danger font-bold bg-danger/10 px-1.5 py-0.5 rounded",
+    };
+  }
+
+  if (diffDays === 0) {
+    return { label: `Today, ${timeLabel}`, className: "text-warning font-medium" };
+  }
+  if (diffDays === 1) {
+    return { label: `Tomorrow, ${timeLabel}`, className: "text-accent font-medium" };
+  }
+  return { label: `${dateLabel}, ${timeLabel}`, className: "text-muted-foreground" };
 }
 
 export default function TaskCard({ task, onClick }: { task: Task; onClick: () => void }) {
@@ -45,8 +56,9 @@ export default function TaskCard({ task, onClick }: { task: Task; onClick: () =>
     opacity: isDragging ? 0.4 : 1,
   };
 
-  const dueMeta = getDueMeta(task.dueDate);
   const isDone = task.status === "done";
+  // Read from dueAt instead of dueDate
+  const dueMeta = getDueMeta(task.dueAt, isDone);
 
   return (
     <div
@@ -56,10 +68,9 @@ export default function TaskCard({ task, onClick }: { task: Task; onClick: () =>
       {...listeners}
       className="group relative overflow-hidden rounded-xl border border-border bg-card/80 backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg cursor-grab touch-none active:cursor-grabbing"
     >
-
       <div className="flex items-start gap-2 py-3 pl-4 pr-3">
         <div className="min-w-0 flex-1 cursor-pointer" onClick={onClick}>
-          <h4 className={`mb-1 text-sm font-semibold ${isDone ? "text-muted-foreground" : ""}`}>
+          <h4 className={`mb-1 text-sm font-semibold ${isDone ? "text-muted-foreground line-through" : ""}`}>
             {task.title}
           </h4>
           {task.description && (
@@ -67,8 +78,9 @@ export default function TaskCard({ task, onClick }: { task: Task; onClick: () =>
           )}
         </div>
 
+        {/* Added shrink-0 so the longer date+time string doesn't get squished by the title */}
         {dueMeta && (
-          <span className={`flex items-center gap-1 text-[10px] font-semibold ${dueMeta.className}`}>
+          <span className={`flex shrink-0 items-center gap-1 text-[10px] ${dueMeta.className}`}>
             <Calendar size={10} />
             {dueMeta.label}
           </span>

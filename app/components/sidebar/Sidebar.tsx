@@ -6,6 +6,8 @@ import { LayoutDashboard, ListTodo, Settings, LogOut, Menu, X, BookHeart, Flower
 import { useRouter, usePathname } from "next/navigation";
 import { Task } from "@/app/types";
 import { generateNotifications } from "@/app/lib/notifications";
+import Navbar from "../Navbar";
+import Link from "next/link";
 
 export default function Sidebar({ tasks }: { tasks: Task[] }) {
     const router = useRouter();
@@ -39,26 +41,13 @@ export default function Sidebar({ tasks }: { tasks: Task[] }) {
     return (
         <>
             {/* --- 1. MOBILE TOP HEADER (Hidden on Desktop) --- */}
-            <header className="glass sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-border px-4 md:hidden">
-                <div className="flex items-center gap-2">
-                    {/* <div className="gradient-brand h-7 w-7 rounded-lg shadow-md shadow-primary/20" /> */}
-                    <Flower className="h-6 w-6 text-purple-400" style={{ animation: "spin 4s linear infinite" }} />
-                    <span className="text-lg font-bold gradient-text">TaskFlow Pro</span>
-                </div>
-
-                <div className="flex items-center gap-3">
-                    <div className="gradient-brand flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-primary-foreground">
-                        {initials || "U"}
-                    </div>
-                    <button
-                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                        aria-label="Toggle Menu"
-                    >
-                        {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
-                    </button>
-                </div>
-            </header>
+            <div className="md:hidden">
+                <Navbar
+                    onToggleSidebar={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    isSidebarOpen={isMobileMenuOpen}
+                    notificationCount={notificationCount}
+                />
+            </div>
 
             {/* --- 2. MOBILE OVERLAY BACKDROP --- */}
             {isMobileMenuOpen && (
@@ -76,11 +65,13 @@ export default function Sidebar({ tasks }: { tasks: Task[] }) {
                 <div>
                     {/* Brand header inside sidebar */}
                     <div className="mb-8 flex items-center justify-between px-2">
+                        <Link href="/" className="flex items-center gap-2.5 transition-opacity cursor-pointer hover:opacity-90">
                         <div className="flex items-center gap-2">
                             {/* <div className="gradient-brand h-7 w-7 rounded-lg shadow-md shadow-primary/20" /> */}
                             <Flower className="h-7 w-7 text-purple-400" style={{ animation: "spin 4s linear infinite" }} />
                             <span className="text-lg font-bold gradient-text">TaskFlow Pro</span>
                         </div>
+                        </Link>
 
                         {/* Close button inside drawer for mobile */}
                         <button

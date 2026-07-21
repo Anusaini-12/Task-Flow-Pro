@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "animate.css";
 import "./globals.css";
 import { Toaster } from "sonner";
 

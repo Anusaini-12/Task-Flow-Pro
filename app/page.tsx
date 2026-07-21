@@ -12,6 +12,6 @@ export default async function RootPage() {
   if (session) {
     redirect("/dashboard");
   } else {
-    redirect("/login");
+    redirect("/homepage");
   }
 }

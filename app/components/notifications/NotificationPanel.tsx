@@ -13,7 +13,7 @@ export default function NotificationPanel({
   if (notifications.length === 0) {
     return (
       <div className="rounded-xl border border-border bg-card p-6 text-center">
-        <Bell className="mx-auto h-8 w-8 text-muted-foreground/50 mb-2" />
+        <Bell className="mx-auto h-8 w-8 text-primary animate-pulse mb-2" />
         <h2 className="font-semibold text-lg">Notifications</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           You're all caught up! No pending deadline alerts. 🎉

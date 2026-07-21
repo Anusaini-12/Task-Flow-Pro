@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { signOut, useSession } from "@/app/lib/auth-client";
-import { LayoutDashboard, ListTodo, Settings, LogOut, Menu, X, BookHeart, Flower, Bell } from "lucide-react";
+import { LayoutDashboard, ListTodo, Settings, LogOut, Menu, X, BookHeart, Flower, Bell, BarChart3 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { Task } from "@/app/types";
 import { generateNotifications } from "@/app/lib/notifications";
@@ -31,6 +31,7 @@ export default function Sidebar({ tasks }: { tasks: Task[] }) {
     const navItems = [
         { icon: <LayoutDashboard size={18} />, label: "Dashboard", href: "/dashboard" },
         { icon: <ListTodo size={18} />, label: "My Tasks", href: "/my-tasks" },
+        { icon: <BarChart3 size={18} />, label: "Analytics", href: "/analytics" },
         { icon: <Settings size={18} />, label: "Settings", href: "/settings" },
         { icon: <Bell size={18} />, label: "Notifications", href: "/notifications", count: notificationCount },
     ];
